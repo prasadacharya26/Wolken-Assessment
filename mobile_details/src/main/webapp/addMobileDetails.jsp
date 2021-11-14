@@ -7,6 +7,8 @@
 <meta charset="ISO-8859-1">
 <title>Add mobile details</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+ <link rel="stylesheet" href="<c:url value="/css/style.css" />">
+ <script src="<c:url value="/resources/script.js" />"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
@@ -14,7 +16,7 @@
 </head>
 <body>
 <div>
-	<nav class="navbar navbar-dark bg-primary" >
+	<nav class="navbar navbar-dark bg-primary"  >
   		<a class="navbar-brand" href="index">Home</a>
 	</nav>
 </div>
@@ -27,18 +29,19 @@
 				Brand Name:
 			</div>
 			<div class="col-sm-6">
-				<input class="form-control" type="text" name="brandName" placeholder="Enter brand name">
+				<input class="form-control" type="text" name="brandName" placeholder="Enter brand name" onblur="validateName()">
 			</div>
-			<div class="col-sm-4">
-				<label class="color-valid" id="nameValid"></label>
-			</div>
+			  <div class="col"><label class="color-valid" id="nameValid"></label></div>
 		</div>
 		<div class="form-group row">
 			<div class="col-sm-2">
 				Model Number:
 			</div>
 			<div class="col-sm-6">
-				<input class="form-control" type="text" name="modelNo" placeholder="Enter brand model number">
+				<input class="form-control" type="text" name="modelNo" placeholder="Enter brand model number" onblur="validateModelNumber()">
+			</div>
+			<div class="col-sm-4">
+				<label class="color-valid" id="modelnoValid"></label>
 			</div>
 		</div>
 		<div class="form-group row">
@@ -46,7 +49,10 @@
 				Model name:
 			</div>
 			<div class="col-sm-6">
-				<input class="form-control" type="text" name="modelName" placeholder="Enter brand model name">
+				<input class="form-control" type="text" name="modelName" placeholder="Enter brand model name" onblur="validateModelName()">
+			</div>
+			<div class="col-sm-4">
+				<label class="color-valid" id="modelnameValid"></label>
 			</div>
 		</div>
 		<div class="form-group row">
@@ -54,7 +60,10 @@
 				Brand type:
 			</div>
 			<div class="col-sm-6">
-				<input class="form-control" type="text" name="type" placeholder="Enter brand type">
+				<input class="form-control" type="text" name="type" placeholder="Enter brand type" onblur="validateBrandType()">
+			</div>
+			<div class="col-sm-4">
+				<label class="color-valid" id="brandtypeValid"></label>
 			</div>
 		</div>
 		<div class="form-group row">
@@ -62,7 +71,10 @@
 				RAM:
 			</div>
 			<div class="col-sm-6">
-				<input class="form-control" type="text" name="ram" placeholder="Enter brand ram">
+				<input class="form-control" type="text" name="ram" placeholder="Enter brand ram" onblur="validateRAM()">
+			</div>
+			<div class="col-sm-4">
+				<label class="color-valid" id="ramValid"></label>
 			</div>
 		</div>
 		<div class="form-group row">
@@ -70,7 +82,10 @@
 				ROM:
 			</div>
 			<div class="col-sm-6">
-				<input class="form-control" type="text" name="rom" placeholder="Enter brand rom">
+				<input class="form-control" type="text" name="rom" placeholder="Enter brand rom" onblur="validateROM()">
+			</div>
+			<div class="col-sm-4">
+				<label class="color-valid" id="romValid"></label>
 			</div>
 		</div>
 		<div class="form-group row">
@@ -78,7 +93,10 @@
 				Price:
 			</div>
 			<div class="col-sm-6">
-				<input class="form-control" type="text" name="price" placeholder="Enter brand price">
+				<input class="form-control" type="text" name="price" placeholder="Enter brand price" onblur="validatePrice()">
+			</div>
+			<div class="col-sm-4">
+				<label class="color-valid" id="priceValid"></label>
 			</div>
 		</div>
 		<div class="form-group row">
@@ -86,16 +104,19 @@
 				Available:
 			</div>
 			<div class="col-sm-6">
-				<select id="country" name="availabele" class="form-control">
+				<select id="country" name="availabele" class="form-control" >
                       <option value="">Select availability</option>
                       <option value="true">True</option>
                       <option value="false">False</option>
                  </select>
 			</div>
+			<div class="col-sm-4">
+				<label class="color-valid" id="availableValid"></label>
+			</div>
 		</div>
 		<div class="form-group row">
 			<div class="col-sm-2">
-				<input type="submit" class="btn btn-primary" value="Save">
+				<input type="submit" class="btn btn-primary" value="Save" onclick="validateField()">
 			</div>
 			<div class="col-sm-6">
 				<input type="reset" class="btn btn-primary" value="Reset">

@@ -13,7 +13,8 @@
     http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd">
     
     <context:component-scan base-package="com.wolken.mobile_details"/>
-    <mvc:resources mapping="/resources/**" location="/resources/style/"/>
+    <mvc:resources mapping="/resources/**" location="/js/"/>
+    <mvc:resources mapping="/css/**" location="/style/"/>
    <mvc:annotation-driven/>
    
      <bean id="datasource" class="org.apache.commons.dbcp.BasicDataSource">
