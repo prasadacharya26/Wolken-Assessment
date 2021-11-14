@@ -19,7 +19,7 @@
   		<a class="navbar-brand" href="index">Home</a>
 	</nav>
 </div>
-<div class="container">
+<div class="container top">
 <h2>Update price by model number</h2>
 	<form action="updatePrice" method="post">
 		<div class="form-group row">
@@ -54,7 +54,7 @@
 		</div>
 	</form>
 </div>
-<div class="card-footer text-muted fixed-bottom">
+<div class="card-footer text-muted fixed-bottom bg-dark">
    <h6 class="text-center">@Copyright Reserved 2021</h6>
 </div>
 </body>

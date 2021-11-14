@@ -6,6 +6,7 @@
 <head>
 <meta charset="ISO-8859-1">
 <title>Filter by Price</title>
+ <link rel="stylesheet" href="<c:url value="/css/style.css" />">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <script src="<c:url value="/resources/script.js" />"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -19,7 +20,7 @@
   		<a class="navbar-brand" href="index">Home</a>
 	</nav>
 </div>
-<div class="container">
+<div class="container top">
 <h2>Filter by price</h2>
 	<form action="filterByPrice" method="post">
 		<div class="form-group row">
