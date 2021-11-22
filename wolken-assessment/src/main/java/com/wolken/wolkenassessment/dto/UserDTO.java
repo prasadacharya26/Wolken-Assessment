@@ -1,5 +1,9 @@
 package com.wolken.wolkenassessment.dto;
 
+import java.util.List;
+
+import com.wolken.wolkenassessment.entity.TicketEntity;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,4 +25,5 @@ public class UserDTO {
 	private String state;
 	private String country;
 	private int pincode;
+	private List<TicketEntity> ticket;
 }

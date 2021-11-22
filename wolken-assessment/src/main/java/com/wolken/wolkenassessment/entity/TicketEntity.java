@@ -34,6 +34,6 @@ public class TicketEntity{
 	private String urgency;
 	private String status;
 	private String assignedTo;
-	private int customerId ;
-	
+	//private int customerId ;
+
 }

@@ -14,5 +14,6 @@ public interface UserService {
 
 	String updateUserDetails(UserDTO userDTO);
 
+	UserDTO validateAndgetUserById(int id);	
 
 }

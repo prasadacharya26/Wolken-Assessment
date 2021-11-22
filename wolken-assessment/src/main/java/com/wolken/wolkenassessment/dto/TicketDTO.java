@@ -20,5 +20,6 @@ public class TicketDTO {
 	private String urgency;
 	private String status;
 	private String assignedTo;
-	private int customerId;
+	//private int customerId;
+	//private UserEntity userEntity;
 }

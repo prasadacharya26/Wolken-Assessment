@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wolken.wolkenassessment.dto.TicketDTO;
@@ -26,7 +28,7 @@ public class TicketController {
 		try {
 			message = ticketService.validateAndAddTicket(ticketDTO);
 		} catch (Exception e) {
-			logger.info(e.getMessage(),e.getClass().getSimpleName());
+			logger.error(e.getMessage(),e.getClass().getSimpleName());
 		}
 		return message;
 	}
@@ -37,7 +39,7 @@ public class TicketController {
 		try {
 			ticketDTOs = ticketService.validateAndGetAll();
 		} catch (Exception e) {
-			logger.info(e.getMessage(),e.getClass().getSimpleName());
+			logger.error(e.getMessage(),e.getClass().getSimpleName());
 		}
 		return ticketDTOs;
 	}
@@ -51,5 +53,38 @@ public class TicketController {
 			logger.error(e.getMessage(),e.getClass().getSimpleName());
 		}
 		return message;
+	}
+	
+	@PutMapping("updateStatus")
+	String updateStatus(@RequestParam int ticketId,String status) {
+		String message = null;
+		try {
+			message = ticketService.updateStatusById(ticketId,status);
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e.getClass().getSimpleName());
+		}
+		return message;
+	}
+	
+	@GetMapping("myTickets")
+	List<TicketDTO> myTickets(@RequestParam int customerId){
+		List<TicketDTO> ticketDTOs=null;
+		try {
+			ticketDTOs = ticketService.findMyTickets(customerId);
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e.getClass().getSimpleName());
+		}
+		return ticketDTOs;
+	}
+	
+	@GetMapping("checkProgress")
+	TicketDTO checkProgress(@RequestParam int tickedId) {
+		TicketDTO ticketDTO = null;
+		try {
+			ticketDTO = ticketService.checkProgress(tickedId);
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e.getClass().getSimpleName());
+		}
+		return ticketDTO;
 	}
 }

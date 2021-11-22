@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import com.wolken.wolkenassessment.dto.TicketDTO;
 import com.wolken.wolkenassessment.entity.TicketEntity;
-import com.wolken.wolkenassessment.entity.UserEntity;
 import com.wolken.wolkenassessment.repository.TicketRepository;
 import com.wolken.wolkenassessment.repository.UserRepository;
 
@@ -30,15 +29,14 @@ public class TicketServiceImpl implements TicketService {
 	UserRepository userRepository;
 	
 	@Autowired
-	UserandTicketService userandTicketService;
+	TicketService ticketService;
 	
 	SimpleDateFormat date=new SimpleDateFormat("dd/MM/yyyy");
 	@Override
-	public String validateAndAddTicket(TicketDTO ticketDTO)throws ParseException {
-		UserEntity userEntity = userRepository.findById(ticketDTO.getCustomerId());
+	public String validateAndAddTicket(TicketDTO ticketDTO) {
+		//UserEntity userEntity = userRepository.findById(ticketDTO.getCustomerId());
 		try {
 			if(!ticketDTO.getAgentId().equals(null) && !ticketDTO.getAgentId().equals("")) {
-				logger.info(""+ticketDTO);
 				if(!ticketDTO.getRequestType().equals(null) && !ticketDTO.getRequestType().equals("")) {
 					if(!ticketDTO.getIssue().equals(null) && !ticketDTO.getIssue().equals("")) {
 						if(!ticketDTO.getDate().equals(null) && !ticketDTO.getDate().equals("")) {
@@ -48,27 +46,23 @@ public class TicketServiceImpl implements TicketService {
 										if(!ticketDTO.getProductId().equals(null) && !ticketDTO.equals("")) {
 											if(!ticketDTO.getProductName().equals(null) && !ticketDTO.equals("")) {
 												if(!ticketDTO.getAssignedTo().equals(null) && !ticketDTO.getAssignedTo().equals("")) {
-													if(ticketDTO.getCustomerId()!=0) {
-														if(userEntity!=null) {
+//													if(ticketDTO.getCustomerId()!=0) {
+//														if(userEntity!=null) {
 															TicketEntity ticketEntity = new TicketEntity();
 															Date addDate = new SimpleDateFormat("dd/MM/yyyy").parse(ticketDTO.getDate());
 															ticketEntity.setDate(addDate);
 															BeanUtils.copyProperties(ticketDTO, ticketEntity);
 															ticketRepository.save(ticketEntity);
-															UserEntity userEntity1 = userRepository.findById(ticketDTO.getCustomerId());
-															String mapping = userandTicketService.mappingUserandTicket(userEntity1, ticketEntity);
 															logger.info("Ticket saved");
-															logger.info(mapping);
-															logger.info(""+userEntity1);
 															return "Ticket saved";
-														}else {
-															logger.info("Invalid customer id");
-															return "Invalid customer id";
-														}													
-													}else {
-														logger.info("Invalid customer id");
-														return "Invalid customer id";
-													}
+//														}else {
+//															logger.info("Invalid customer id");
+//															return "Invalid customer id";
+//														}													
+//													}else {
+//														logger.info("Invalid customer id");
+//														return "Invalid customer id";
+//													}
 												}else {
 													logger.info("Invalid assigned to");
 													return "Invalid assigned to";
@@ -110,10 +104,10 @@ public class TicketServiceImpl implements TicketService {
 				logger.info("Invalid agent id");
 				return "Invalid agent id";
 			}
-		} catch (NullPointerException | TypeMismatchException e) {
-			logger.info(e.getMessage(),e.getClass().getSimpleName());
+		} catch (NullPointerException | TypeMismatchException | ParseException e) {
+			logger.error(e.getMessage(),e.getClass().getSimpleName());
+			return e.getMessage();
 		}
-		return null;
 	}
 
 	@Override
@@ -121,22 +115,23 @@ public class TicketServiceImpl implements TicketService {
 		List<TicketDTO> ticketDTOs = new ArrayList<TicketDTO>();
 		try {
 			List<TicketEntity> ticketEntities = ticketRepository.findAll();
-			TicketDTO ticketDTO = new TicketDTO();
+			
 			for (TicketEntity ticketEntity : ticketEntities) {
+				TicketDTO ticketDTO = new TicketDTO();
 				BeanUtils.copyProperties(ticketEntity, ticketDTO);
 				ticketDTO.setDate(date.format(ticketEntity.getDate()));
 				ticketDTOs.add(ticketDTO);
 			}
 			logger.info(""+ticketDTOs);
 		} catch (NullPointerException | TypeMismatchException e) {
-			logger.error(e.getMessage(),e.getClass().getSimpleName());
+			logger.error(e.getMessage(),e.getClass().getName());
 		}
 		return ticketDTOs;
 	}
 
 
 	@Override
-	public String updateTicketById(TicketDTO ticketDTO) throws ParseException {
+	public String updateTicketById(TicketDTO ticketDTO){
 		try {
 			TicketEntity ticketEntity = ticketRepository.findById(ticketDTO.getTicketId());
 			if(ticketEntity!=null) {
@@ -162,22 +157,192 @@ public class TicketServiceImpl implements TicketService {
 				if(ticketDTO.getAssignedTo()!=null) {
 					ticketEntity.setAssignedTo(ticketDTO.getAssignedTo());
 				}
-				if(ticketDTO.getCustomerId()!=0) {
-					ticketEntity.setCustomerId(ticketDTO.getCustomerId());
-				}
+//				if(ticketDTO.getCustomerId()!=0) {
+//					ticketEntity.setCustomerId(ticketDTO.getCustomerId());
+//				}
 				ticketRepository.save(ticketEntity);
-				String mapping = userandTicketService.updateMapping(ticketEntity);
-				logger.info(mapping);
 				logger.info("Data updated");
 				return "Data updated";
 			}else {
-				logger.info("Id not found");
-				return "Id not found";
+				logger.info("Ticket id not found");
+				return "Ticket id not found";
 			}
-		} catch (NullPointerException | TypeMismatchException e) {
-			logger.error(e.getMessage(),e.getClass().getSimpleName());
+		} catch (NullPointerException | TypeMismatchException | ParseException e) {
+			logger.error(e.getMessage(),e.getClass().getName());
 		}
 		return null;
 	}
 
+	@Override
+	public String updateStatusById(int ticketId, String status) {
+		try {
+			if(ticketId!=0) {
+				if(status!=null) {
+					TicketEntity ticketEntity = ticketRepository.findById(ticketId);
+					if(ticketEntity!=null) {
+						if(status=="pending" || status=="completed") {
+							ticketEntity.setStatus(status);
+							ticketRepository.save(ticketEntity);
+							logger.info("Status Updated");
+							return "Status Updated";
+						}else {
+							logger.info("Invalid status");
+							return "Invalid status";
+						}
+					}else {
+						logger.info("Ticket id not found");
+						return "Ticket id not found";
+					}
+				}else {
+					logger.info("Invalid status");
+					return "Invalid status";
+				}
+			}else {
+				logger.info("Invalid ticket id");
+				return "Invalid ticket id";
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e.getClass().getName());
+		}
+		return null;
+	}
+
+	
+	@Override
+	public List<TicketDTO> findMyTickets(int customerId) {
+		List<TicketDTO> ticketDTOs = new ArrayList<TicketDTO>();
+		try {
+			if(customerId!=0) {
+//				List<TicketEntity> ticketEntities = ticketRepository.findByCustomerId(customerId);
+//				if(ticketEntities!=null) {
+//						TicketDTO ticketDTO=new TicketDTO();
+//						for (TicketEntity ticketEntity : ticketEntities) {
+//							BeanUtils.copyProperties(ticketEntity, ticketDTO);
+//							ticketDTO.setDate(date.format(ticketEntity.getDate()));
+//							ticketDTOs.add(ticketDTO);
+//						}
+//				}else {
+//					logger.info("Customer id not found");
+//				}
+			}else {
+				logger.info("Invalid customer id");
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e.getClass().getName());
+		}
+		return ticketDTOs;
+	}
+
+	@Override
+	public String saveAll(List<TicketDTO> ticketDTOs) {
+		List<TicketEntity> ticketEntities1 =new ArrayList<>();
+		try {
+			for (TicketDTO ticketDTO : ticketDTOs) {
+//				UserEntity userEntity = userRepository.findById(ticketDTO.getCustomerId());
+				if (!ticketDTO.getAgentId().equals(null) && !ticketDTO.getAgentId().equals("")) {
+					if (!ticketDTO.getRequestType().equals(null) && !ticketDTO.getRequestType().equals("")) {
+						if (!ticketDTO.getIssue().equals(null) && !ticketDTO.getIssue().equals("")) {
+							if (!ticketDTO.getDate().equals(null) && !ticketDTO.getDate().equals("")) {
+								if (!ticketDTO.getUrgency().equals(null) && !ticketDTO.getUrgency().equals("")) {
+									if (ticketDTO.getUrgency().equalsIgnoreCase("urgent")
+											|| ticketDTO.getUrgency().equalsIgnoreCase("medium")
+											|| ticketDTO.getUrgency().equalsIgnoreCase("low")) {
+										if (!ticketDTO.getStatus().equals(null) && !ticketDTO.getStatus().equals("")) {
+											if (!ticketDTO.getProductId().equals(null) && !ticketDTO.equals("")) {
+												if (!ticketDTO.getProductName().equals(null) && !ticketDTO.equals("")) {
+													if (!ticketDTO.getAssignedTo().equals(null)
+															&& !ticketDTO.getAssignedTo().equals("")) {
+														if (ticketDTO.getStatus().equalsIgnoreCase("pending") || ticketDTO.getStatus().equalsIgnoreCase("completed")) {
+//															if (ticketDTO.getCustomerId() != 0) {
+//																
+//																if (userEntity != null) {
+																	TicketEntity ticketEntity = new TicketEntity();
+																	Date addDate = new SimpleDateFormat("dd/MM/yyyy")
+																			.parse(ticketDTO.getDate());
+
+																	ticketEntity.setDate(addDate);
+																	BeanUtils.copyProperties(ticketDTO, ticketEntity);
+																	ticketEntities1.add(ticketEntity);
+																	logger.info(""+ticketEntities1);
+																	
+//																} else {
+//																	logger.info("Invalid customer id");
+//																	return "Invalid customer id";
+//																}
+//															} else {
+//																logger.info("Invalid customer id");
+//																return "Invalid customer id";
+//															}
+														}else {
+															logger.info("Invalid status(enter pending/completed)");
+															return "Invalid urgency(enter  pending/completed)";
+														}
+														
+													} else {
+														logger.info("Invalid assigned to");
+														return "Invalid assigned to";
+													}
+												} else {
+													logger.info("Invalid product name");
+													return "Invalid product name";
+												}
+											} else {
+												logger.info("Invalid product id");
+												return "Invalid product id";
+											}
+
+										} else {
+											logger.info("Invalid status");
+											return "Invalid status";
+										}
+									} else {
+										logger.info("Invalid urgency");
+										return "Invalid urgency";
+									}
+								} else {
+									logger.info("Invalid urgency");
+									return "Invalid urgency";
+								}
+							} else {
+								logger.info("Invalid date");
+								return "Invalid date";
+							}
+						} else {
+							logger.info("Invalid issue");
+							return "Invalid issue";
+						}
+					} else {
+						logger.info("Invalid request type");
+						return "Invalid request type";
+					}
+				} else {
+					logger.info("Invalid agent id");
+					return "Invalid agent id";
+				}
+			}
+			logger.info(""+ticketEntities1);
+			ticketRepository.saveAll(ticketEntities1);
+			logger.info("Data Saved");
+			return "Data Saved";	
+		} catch (NullPointerException | TypeMismatchException | ParseException e) {
+			logger.error(e.getMessage(), e.getClass().getSimpleName());
+			return e.getMessage();
+		}
+	}
+
+	@Override
+	public TicketDTO checkProgress(int tickedId) {
+		TicketEntity ticketEntity = ticketRepository.findById(tickedId);
+		TicketDTO ticketDTO =new TicketDTO();
+		try {
+			if(ticketEntity!=null) {
+				BeanUtils.copyProperties(ticketEntity, ticketDTO);
+				ticketDTO.setDate(date.format(ticketEntity.getDate()));
+				logger.info(""+ticketDTO);
+			}
+		} catch (NullPointerException | TypeMismatchException e) {
+			logger.error(e.getMessage(), e.getClass().getName());
+		}
+		return ticketDTO;
+	}
 }

@@ -27,7 +27,7 @@ public class UserController {
 		try {
 			message = service.validateAndRegister(userDTO);
 		} catch (Exception e) {
-			logger.info(e.getMessage(),e.getClass().getSimpleName());
+			logger.error(e.getMessage(),e.getClass().getSimpleName());
 		}
 		return message;
 	}
@@ -38,7 +38,19 @@ public class UserController {
 		try {
 			userDTO = service.validateAndgetUserByEmail(email);
 		} catch (Exception e) {
-			logger.info(e.getMessage(),e.getClass().getSimpleName());
+			logger.error(e.getMessage(),e.getClass().getSimpleName());
+		}
+		logger.info(""+userDTO);
+		return userDTO;
+	}
+	
+	@GetMapping("getUserID")
+	UserDTO getUserID(@RequestParam int id) {
+		UserDTO userDTO = null;
+		try {
+			userDTO = service.validateAndgetUserById(id);
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e.getClass().getSimpleName());
 		}
 		logger.info(""+userDTO);
 		return userDTO;
@@ -50,7 +62,7 @@ public class UserController {
 		try {
 			userDTOs = service.getAllUser();
 		} catch (Exception e) {
-			logger.info(e.getMessage(),e.getClass().getSimpleName());
+			logger.error(e.getMessage(),e.getClass().getSimpleName());
 		}
 		return userDTOs;
 	}

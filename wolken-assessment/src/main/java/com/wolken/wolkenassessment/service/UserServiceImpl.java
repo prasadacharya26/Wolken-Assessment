@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.wolken.wolkenassessment.dto.UserDTO;
 import com.wolken.wolkenassessment.entity.UserEntity;
-import com.wolken.wolkenassessment.entity.UserandTicketEntity;
+import com.wolken.wolkenassessment.repository.TicketRepository;
 import com.wolken.wolkenassessment.repository.UserRepository;
 
 @Service
@@ -21,16 +21,17 @@ public class UserServiceImpl implements UserService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	@Autowired
 	UserRepository userRepository;
+	@Autowired 
+	TicketService ticketService;
 	@Autowired
-	UserandTicketService userandTicketService;
-	
+	TicketRepository ticketRepository;
 	@Override
 
 	public String validateAndRegister(UserDTO userDTO) {
+		
+		UserEntity emailEntity = userRepository.findUserByEmail(userDTO.getEmail());
+		UserEntity contactEnity = userRepository.findUserByContactNumber(userDTO.getContactNumber());
 		try {
-			UserEntity emailEntity = userRepository.findUserByEmail(userDTO.getEmail());
-			UserEntity contactEnity = userRepository.findUserByContactNumber(userDTO.getContactNumber());
-			UserEntity userEntity = new UserEntity();
 			if (!userDTO.getFirstName().equals(null) && !userDTO.getFirstName().equals("")) {
 				if (!userDTO.getLastName().equals(null) && !userDTO.getLastName().equals("")) {
 					if (!userDTO.getEmail().equals(null) && !userDTO.getEmail().equals("")) {
@@ -43,10 +44,23 @@ public class UserServiceImpl implements UserService {
 												if (userDTO.getPincode()!=0) {
 													if(emailEntity==null){
 														if(contactEnity==null) {
-															BeanUtils.copyProperties(userDTO, userEntity);
-															userRepository.save(userEntity);
-															logger.info("Registered successfull");
-															return "Registered successfull";
+															if(userDTO.getGender().equalsIgnoreCase("male") || userDTO.getGender().equalsIgnoreCase("female") || userDTO.getGender().equalsIgnoreCase("others")) {
+																UserEntity userEntity1=new UserEntity();
+																BeanUtils.copyProperties(userDTO, userEntity1);
+																//logger.info(""+userDTO.getTicket());
+																logger.info(""+userDTO);
+																userEntity1.setTicket(userDTO.getTicket());
+																userRepository.save(userEntity1);
+																//TicketEntity ticketEntity=new TicketEntity();
+																//ticketEntity.setCustomerId(userDTO.getId());
+																ticketRepository.saveAll(userDTO.getTicket());
+																logger.info("Registered successfull");
+																return "Registered successfull";
+															
+															}else {
+																logger.info("Invalid gender");
+																return "Invalid gender";
+															}
 														}else {
 															logger.info(userDTO.getContactNumber()+" "+"this contact number already exists");
 															return userDTO.getContactNumber()+"this contact number already exists";
@@ -97,22 +111,27 @@ public class UserServiceImpl implements UserService {
 			}
 		} catch (NullPointerException | TypeMismatchException e) {
 			logger.error(e.getMessage(), e.getClass().getSimpleName());
-		}
-		return null;
+			return e.getMessage();
+		}		
 	}
 
 	@Override
 	public UserDTO validateAndgetUserByEmail(String email) {
 		UserDTO userDTO = new UserDTO();
 		try {
-			UserEntity userEntity = userRepository.findUserByEmail(email);
-			if (userEntity != null) {
-				logger.info("" + userEntity);
-				BeanUtils.copyProperties(userEntity, userDTO);
-				logger.info("" + userEntity);
-				logger.info("" + userDTO);
-			} else {
-				logger.info("Email not found");
+			if(email!=null) {
+				UserEntity userEntity = userRepository.findUserByEmail(email);
+				if (userEntity != null) {
+					logger.info("" + userEntity);
+					BeanUtils.copyProperties(userEntity, userDTO);
+					logger.info("" + userEntity);
+					logger.info("" + userDTO);
+				} else {
+					logger.info("Email not found");
+					return userDTO;
+				}
+			}else {
+				logger.info("Invalid email");
 				return userDTO;
 			}
 		} catch (NullPointerException | TypeMismatchException e) {
@@ -126,12 +145,16 @@ public class UserServiceImpl implements UserService {
 		List<UserDTO> userDTOs = new ArrayList<>();
 		try {
 			List<UserEntity> userEntities = userRepository.findAll();
-			for (UserEntity userEntity : userEntities) {
-				UserDTO userDTO = new UserDTO();
-				BeanUtils.copyProperties(userEntity, userDTO);
-				userDTOs.add(userDTO);
+			if(userEntities!=null) {
+				for (UserEntity userEntity : userEntities) {
+					UserDTO userDTO = new UserDTO();
+					BeanUtils.copyProperties(userEntity, userDTO);
+					userDTOs.add(userDTO);
+				}
+				logger.info("" + userDTOs);
+			}else {
+				logger.info("No Data Available");
 			}
-			logger.info("" + userDTOs);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e.getClass().getSimpleName());
 		}
@@ -154,10 +177,20 @@ public class UserServiceImpl implements UserService {
 					userEntity.setEmail(userDTO.getEmail());
 				}
 				if (userDTO.getContactNumber() != 0) {
-					userEntity.setContactNumber(userDTO.getContactNumber());
+					if(userDTO.getContactNumber()>5999999999l && userDTO.getContactNumber()<9999999999l) {
+						userEntity.setContactNumber(userDTO.getContactNumber());
+					}else {
+						logger.info("Invalid contact number");
+						return "Invalid contact number";
+					}
 				}
 				if (userDTO.getGender() != null) {
-					userEntity.setGender(userDTO.getGender());
+					if(userDTO.getGender().equalsIgnoreCase("male") || userDTO.getGender().equalsIgnoreCase("female") || userDTO.getGender().equalsIgnoreCase("other")) {
+						userEntity.setGender(userDTO.getGender());
+					}else {
+						logger.info("Invalid gender");
+						return "Invalid gender";
+					}	
 				}
 				if (userDTO.getAddress() != null) {
 					userEntity.setAddress(userDTO.getAddress());
@@ -176,17 +209,40 @@ public class UserServiceImpl implements UserService {
 				}
 				logger.info(""+userEntity);
 				userRepository.save(userEntity);
-				List<UserandTicketEntity> mapping = userandTicketService.updateUserMapping(userEntity);
-				logger.info("Data Updated");
-				logger.info(""+mapping);
 			} else {
 				logger.info("User Id not found");
 				return "User Id not found";
 			}
 		} catch (NullPointerException | TypeMismatchException e) {
 			logger.error(e.getMessage(), e.getClass().getSimpleName());
+			return e.getMessage();
 		}
 		return "User data updated";
+	}
+
+	@Override
+	public UserDTO validateAndgetUserById(int id) {
+		UserDTO userDTO = new UserDTO();
+		try {
+			if(id!=0) {
+				UserEntity userEntity = userRepository.findById(id);
+				if (userEntity != null) {
+					logger.info("" + userEntity);
+					BeanUtils.copyProperties(userEntity, userDTO);
+					logger.info("" + userEntity);
+					logger.info("" + userDTO);
+				} else {
+					logger.info("Email not found");
+					return userDTO;
+				}
+			}else {
+				logger.info("Invalid email");
+				return userDTO;
+			}
+		} catch (NullPointerException | TypeMismatchException e) {
+			logger.error(e.getMessage(), e.getClass().getSimpleName());
+		}
+		return userDTO;
 	}
 
 }
